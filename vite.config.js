@@ -1,4 +1,4 @@
-import { defineConfig, loadEnv } from 'vite';
+import { defineConfig } from 'vite';
 import react from '@vitejs/plugin-react';
 import handler from './api/reddit.js';
 
@@ -31,9 +31,6 @@ function redditApiPlugin() {
   };
 }
 
-export default defineConfig(({ mode }) => {
-  // Load REDDIT_* from .env so the handler above can read them in development.
-  Object.assign(process.env, loadEnv(mode, process.cwd(), 'REDDIT_'));
-
-  return { plugins: [react(), redditApiPlugin()] };
+export default defineConfig({
+  plugins: [react(), redditApiPlugin()],
 });
