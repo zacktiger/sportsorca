@@ -1,0 +1,377 @@
+/* Colours come from a validated data-visualisation palette.
+   Sentiment is a polarity scale, so it uses a diverging pair — blue for
+   positive, red for negative, grey in the middle. Blue/red is used instead of
+   the usual green/red because green and red are the pair colour-blind readers
+   are least able to tell apart. */
+
+:root {
+  color-scheme: light;
+  --page: #f9f9f7;
+  --surface: #fcfcfb;
+  --text-primary: #0b0b0b;
+  --text-secondary: #52514e;
+  --text-muted: #898781;
+  --border: rgba(11, 11, 11, 0.1);
+  --positive: #2a78d6;
+  --neutral: #898781;
+  --negative: #e34948;
+}
+
+@media (prefers-color-scheme: dark) {
+  :root {
+    color-scheme: dark;
+    --page: #0d0d0d;
+    --surface: #1a1a19;
+    --text-primary: #ffffff;
+    --text-secondary: #c3c2b7;
+    --text-muted: #898781;
+    --border: rgba(255, 255, 255, 0.1);
+    --positive: #3987e5;
+    --neutral: #6b6a65;
+    --negative: #e66767;
+  }
+}
+
+* {
+  box-sizing: border-box;
+}
+
+body {
+  margin: 0;
+  background: var(--page);
+  color: var(--text-primary);
+  font-family: system-ui, -apple-system, 'Segoe UI', sans-serif;
+  line-height: 1.5;
+}
+
+.page {
+  max-width: 860px;
+  margin: 0 auto;
+  padding: 40px 20px 80px;
+}
+
+/* Header */
+
+.title {
+  margin: 0 0 8px;
+  font-size: 32px;
+  letter-spacing: -0.02em;
+}
+
+.subtitle {
+  margin: 0;
+  max-width: 60ch;
+  color: var(--text-secondary);
+}
+
+/* Search */
+
+.search {
+  margin: 28px 0;
+}
+
+.search-row {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  padding: 8px 8px 8px 14px;
+}
+
+.search-prefix {
+  color: var(--text-muted);
+}
+
+.search-input {
+  flex: 1;
+  min-width: 0;
+  border: none;
+  background: none;
+  color: inherit;
+  font: inherit;
+  padding: 6px 0;
+}
+
+.search-input:focus {
+  outline: none;
+}
+
+.search-button {
+  border: none;
+  border-radius: 7px;
+  background: var(--text-primary);
+  color: var(--surface);
+  font: inherit;
+  font-weight: 600;
+  padding: 8px 16px;
+  cursor: pointer;
+}
+
+.search-button:disabled {
+  opacity: 0.5;
+  cursor: default;
+}
+
+.suggestions {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 8px;
+  margin-top: 12px;
+  font-size: 14px;
+}
+
+.suggestions-label {
+  color: var(--text-muted);
+}
+
+.suggestion {
+  border: 1px solid var(--border);
+  border-radius: 999px;
+  background: none;
+  color: var(--text-secondary);
+  font: inherit;
+  font-size: 14px;
+  padding: 3px 11px;
+  cursor: pointer;
+}
+
+.suggestion:hover:not(:disabled) {
+  color: var(--text-primary);
+  border-color: var(--text-muted);
+}
+
+/* Messages */
+
+.status,
+.error,
+.empty {
+  color: var(--text-secondary);
+}
+
+.error {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-left: 3px solid var(--negative);
+  border-radius: 8px;
+  padding: 12px 16px;
+}
+
+.results-for {
+  color: var(--text-secondary);
+  margin: 0 0 16px;
+}
+
+/* Stat tiles */
+
+.cards {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(170px, 1fr));
+  gap: 12px;
+  margin-bottom: 16px;
+}
+
+.card {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  padding: 16px;
+}
+
+.card-label {
+  margin: 0;
+  font-size: 13px;
+  color: var(--text-muted);
+}
+
+.card-value {
+  margin: 6px 0 4px;
+  font-size: 26px;
+  font-weight: 600;
+  letter-spacing: -0.02em;
+}
+
+/* The overall vibe is named in words; the dot is a second, redundant cue. */
+.card-value[class*='vibe-'] {
+  font-size: 20px;
+}
+
+.card-value[class*='vibe-']::before {
+  content: '';
+  display: inline-block;
+  width: 10px;
+  height: 10px;
+  border-radius: 50%;
+  margin-right: 8px;
+  background: var(--mark);
+}
+
+.vibe-positive { --mark: var(--positive); }
+.vibe-neutral  { --mark: var(--neutral); }
+.vibe-negative { --mark: var(--negative); }
+
+.card-note {
+  margin: 0;
+  font-size: 13px;
+  color: var(--text-secondary);
+}
+
+/* Panels */
+
+.panel {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  padding: 20px;
+  margin-bottom: 16px;
+}
+
+.panel-header {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 12px;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.panel-title {
+  margin: 0 0 16px;
+  font-size: 15px;
+  font-weight: 600;
+}
+
+.panel-header .panel-title {
+  margin-bottom: 16px;
+}
+
+/* Stacked bar */
+
+.segment-positive { --mark: var(--positive); }
+.segment-neutral  { --mark: var(--neutral); }
+.segment-negative { --mark: var(--negative); }
+
+.bar {
+  display: flex;
+  gap: 2px;
+  height: 28px;
+  border-radius: 4px;
+  overflow: hidden;
+}
+
+.bar-segment {
+  background: var(--mark);
+}
+
+.legend {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px 24px;
+  list-style: none;
+  margin: 14px 0 0;
+  padding: 0;
+  font-size: 14px;
+}
+
+.legend-item {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.swatch {
+  width: 10px;
+  height: 10px;
+  border-radius: 2px;
+  background: var(--mark);
+}
+
+.legend-name {
+  color: var(--text-secondary);
+}
+
+.legend-value {
+  color: var(--text-primary);
+  font-weight: 600;
+}
+
+.legend-percent {
+  color: var(--text-muted);
+  font-weight: 400;
+}
+
+/* Filters */
+
+.filters {
+  display: flex;
+  gap: 6px;
+  margin-bottom: 16px;
+}
+
+.filter {
+  border: 1px solid var(--border);
+  border-radius: 999px;
+  background: none;
+  color: var(--text-secondary);
+  font: inherit;
+  font-size: 13px;
+  padding: 3px 11px;
+  cursor: pointer;
+}
+
+.filter-active {
+  background: var(--text-primary);
+  border-color: var(--text-primary);
+  color: var(--surface);
+}
+
+/* Post list */
+
+.posts {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+}
+
+.post {
+  display: flex;
+  gap: 14px;
+  padding: 12px 0;
+  border-top: 1px solid var(--border);
+}
+
+.post:first-child {
+  border-top: none;
+  padding-top: 0;
+}
+
+/* The colour lives in the rule beside the number, not in the number itself,
+   so the text keeps full contrast. */
+.post-score {
+  flex: none;
+  width: 46px;
+  border-left: 3px solid var(--mark);
+  padding-left: 10px;
+  font-weight: 600;
+  font-variant-numeric: tabular-nums;
+}
+
+.post-body {
+  min-width: 0;
+}
+
+.post-title {
+  color: var(--text-primary);
+  text-decoration: none;
+}
+
+.post-title:hover {
+  text-decoration: underline;
+}
+
+.post-meta {
+  margin: 2px 0 0;
+  font-size: 13px;
+  color: var(--text-muted);
+}
