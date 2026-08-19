@@ -3,51 +3,59 @@
 A small dashboard that reads the 50 hottest posts of any subreddit and scores how
 positive or negative their titles sound.
 
-## How it works
-
-1. You type a subreddit name.
-2. The app asks its own `/api/reddit` endpoint for that subreddit's 50 hot posts.
-   That endpoint is a serverless function which talks to Reddit's official API.
-3. The titles are scored **in the browser** with the [`sentiment`](https://www.npmjs.com/package/sentiment)
-   library, which adds up the AFINN values of the words it recognises — "great"
-   is +3, "terrible" is -3, unknown words count as 0.
-4. The dashboard shows the headline numbers, the positive/neutral/negative split,
-   and every post with its own score.
-
-### Why there is a server part
-
-The assignment can be read as a frontend-only task, but Reddit no longer allows
-it. Its public `.json` URLs reject requests that do not come from a logged-in
-browser, and its official API needs a client secret plus a custom `User-Agent`
-header — a secret must never be shipped to the browser, and browsers do not let
-JavaScript set that header. So the Reddit call happens in `api/reddit.js` and
-the browser only ever talks to our own endpoint. The sentiment analysis stays
-client-side, as the assignment asks.
-
-## Setup
-
-You need Reddit API credentials.
-
-1. Sign in to Reddit and go to <https://www.reddit.com/prefs/apps>.
-2. Click **create another app...**, choose type **script**, and give it any name.
-   Redirect URI can be `http://localhost:5173`.
-3. After creating it you will see two values: the **client ID** (the string just
-   under the app name) and the **secret**.
-4. Copy `.env.example` to `.env` and paste them in:
-
-   ```
-   REDDIT_CLIENT_ID=your_client_id
-   REDDIT_CLIENT_SECRET=your_secret
-   ```
-
-Then:
+## Running it
 
 ```bash
 npm install
 npm run dev
 ```
 
-The app runs at <http://localhost:5173>.
+The app runs at <http://localhost:5173>. There is nothing to configure — no API
+keys, no `.env` file.
+
+## How it works
+
+1. You type a subreddit name.
+2. The app asks its own `/api/reddit` endpoint for that subreddit's 50 hot posts.
+3. The titles are scored **in the browser** with the [`sentiment`](https://www.npmjs.com/package/sentiment)
+   library, which adds up the AFINN values of the words it recognises — "great"
+   is +3, "terrible" is -3, unknown words count as 0.
+4. The dashboard shows the headline numbers, the positive/neutral/negative split,
+   and every post with its own score.
+
+## Why the data comes from RSS
+
+The obvious way to build this is Reddit's official API, and that is how it was
+built first. It no longer works for a new project:
+
+- **In November 2025 Reddit closed self-service API access.** Under the new
+  Responsible Builder Policy, creating an OAuth app now needs manual approval.
+  Existing credentials were grandfathered in, but a new app cannot be registered
+  on demand — the registration form simply returns a 500.
+- **The `.json` endpoints reject anonymous requests.** `/r/{sub}/hot.json`
+  answers `403` with an HTML block page, from a browser and from a server alike,
+  regardless of `User-Agent`. `old.reddit.com` redirects to a login page.
+- **Reddit's RSS feeds are still served anonymously.** `/r/{sub}/hot.rss` returns
+  a normal Atom feed, and `?limit=50` is honoured.
+
+So the app reads the RSS feed. The trade-off is that RSS carries the title,
+author and permalink but **not** the score or comment count, so the post list
+shows the author only. Titles are what the sentiment analysis needs, so the core
+of the assignment is unaffected.
+
+### Why there is still a server part
+
+Reddit sends no CORS headers, so the browser cannot read the feed directly, and
+Reddit asks for a descriptive `User-Agent`, a header browsers do not let
+JavaScript set. `api/reddit.js` makes the request instead, parses the Atom feed,
+and returns a small JSON list. The sentiment analysis stays client-side, as the
+assignment asks.
+
+### Rate limiting
+
+Anonymous readers are throttled fairly tightly. The endpoint keeps each
+subreddit's posts for five minutes, sets `Cache-Control` so Vercel's edge caches
+them too, and falls back to the last good copy if Reddit throttles a refresh.
 
 ## Commands
 
@@ -61,15 +69,15 @@ The app runs at <http://localhost:5173>.
 
 1. Push this repository to GitHub.
 2. Import it at <https://vercel.com/new>. The framework preset is detected as Vite.
-3. Under **Environment Variables**, add `REDDIT_CLIENT_ID` and
-   `REDDIT_CLIENT_SECRET` with the same values as your `.env`.
-4. Deploy. `api/reddit.js` is picked up automatically as a serverless function.
+3. Deploy. `api/reddit.js` is picked up automatically as a serverless function.
+
+No environment variables are needed.
 
 ## Layout
 
 ```
-api/reddit.js            Serverless proxy: Reddit OAuth + the hot-posts request
-src/reddit.js            Calls /api/reddit and trims the response to what we use
+api/reddit.js            Reads Reddit's RSS feed and returns a tidy JSON list
+src/reddit.js            Calls /api/reddit
 src/sentiment.js         Scoring and the roll-up shown at the top
 src/App.jsx              Holds the state and arranges the pieces
 src/components/          Search box, stat tiles, the split bar, the post list
