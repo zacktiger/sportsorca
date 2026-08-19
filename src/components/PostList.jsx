@@ -40,9 +40,7 @@ export default function PostList({ posts }) {
               <a className="post-title" href={post.permalink} target="_blank" rel="noreferrer">
                 {post.title}
               </a>
-              <p className="post-meta">
-                u/{post.author} · {post.score} upvotes · {post.numComments} comments
-              </p>
+              <p className="post-meta">u/{post.author}</p>
             </div>
           </li>
         ))}
